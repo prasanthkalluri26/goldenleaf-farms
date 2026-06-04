@@ -8,7 +8,9 @@ import fruitBg from "../assets/images/fresh-fruits-farm.png";
 import vegetableBg from "../assets/images/fresh-vegetables-garden.png";
 import organicBg from "../assets/images/organic-products-farm.png";
 
+
 function Home() {
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
 
 const handleNavbarSearch = (e) => {
@@ -93,34 +95,35 @@ const handleNavbarSearch = (e) => {
 
   return (
     <div className="min-h-screen bg-[#F7FFE7] overflow-hidden text-gray-900">
-    {/* Home Navbar */}
+   {/* Home Navbar */}
 <div className="fixed top-0 left-0 w-full z-[200] bg-white shadow-md border-b border-lime-100">
-  <div className="w-full h-20 flex items-center justify-between gap-4 px-4 md:px-8">
-    <Link to="/" className="flex items-center gap-3 shrink-0">
+  <div className="w-full min-h-20 flex items-center justify-between gap-3 px-3 md:px-8 py-2">
+    {/* Logo + Brand */}
+    <Link to="/" className="flex items-center gap-2 md:gap-3 shrink-0 min-w-0">
       <img
         src={goldenLeafLogo}
         alt="GoldenLeaf Farms Logo"
-        className="w-20 h-14 md:w-28 md:h-16 object-contain"
+        className="w-14 h-10 md:w-28 md:h-16 object-contain shrink-0"
       />
 
-      <div>
-        <h1 className="text-xl md:text-3xl font-black text-[#0F5132] tracking-wide whitespace-nowrap uppercase font-serif">
+      <div className="min-w-0">
+        <h1 className="text-base sm:text-xl md:text-3xl font-black text-[#0F5132] tracking-wide uppercase font-serif leading-tight truncate">
           GoldenLeaf Farms
         </h1>
 
-        <p className="text-xs md:text-sm text-[#7A5C00] font-bold">
+        <p className="text-[10px] sm:text-xs md:text-sm text-[#7A5C00] font-bold truncate">
           Fresh Farm Products • Fast Delivery
         </p>
       </div>
     </Link>
 
-    {/* Search Bar */}
+    {/* Desktop Search */}
     <div className="hidden lg:flex flex-1 max-w-md mx-4">
       <div className="relative w-full">
         <input
           type="text"
           onKeyDown={handleNavbarSearch}
-          placeholder="Search apple, vegetables, orders..."
+          placeholder="Search apple, vegetable..."
           className="w-full bg-[#F7FFE7] border-2 border-lime-200 rounded-full py-2.5 pl-11 pr-4 text-sm font-bold text-gray-700 outline-none focus:border-[#0F5132] focus:bg-white shadow-sm"
         />
 
@@ -130,7 +133,8 @@ const handleNavbarSearch = (e) => {
       </div>
     </div>
 
-    <div className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
+    {/* Desktop Nav */}
+    <div className="hidden md:flex items-center gap-2 lg:gap-3 text-sm lg:text-base font-bold shrink-0">
       <Link
         to="/"
         className="px-4 py-2 rounded-full bg-[#E8FDCB] text-[#0F5132] shadow-md"
@@ -145,12 +149,12 @@ const handleNavbarSearch = (e) => {
         Farms
       </Link>
 
-     <Link
-  to="/my-orders"
-  className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
->
-  My Orders
-</Link>
+      <Link
+        to="/my-orders"
+        className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+      >
+        My Orders
+      </Link>
 
       <Link
         to="/profile"
@@ -166,26 +170,84 @@ const handleNavbarSearch = (e) => {
         About
       </a>
     </div>
+
+    {/* Mobile Menu Button */}
+    <button
+      type="button"
+      onClick={() => setShowMobileMenu(!showMobileMenu)}
+      className="md:hidden w-11 h-11 rounded-full bg-[#0F5132] text-white font-black text-2xl shadow-lg shrink-0"
+    >
+      ☰
+    </button>
   </div>
 
-  {/* Mobile Search Bar */}
-  <div className="lg:hidden px-4 pb-3 bg-white">
+  {/* Mobile Search */}
+  <div className="md:hidden px-3 pb-3 bg-white">
     <div className="relative w-full">
       <input
         type="text"
         onKeyDown={handleNavbarSearch}
-        placeholder="Search apple, vegetables, orders..."
-        className="w-full bg-[#F7FFE7] border-2 border-lime-200 rounded-full py-2.5 pl-11 pr-4 text-sm font-bold text-gray-700 outline-none focus:border-[#0F5132] focus:bg-white shadow-sm"
+        placeholder="Search apple, potato, orders..."
+        className="w-full bg-[#F7FFE7] border-2 border-lime-200 rounded-full py-2.5 pl-10 pr-4 text-sm font-bold text-gray-700 outline-none focus:border-[#0F5132] focus:bg-white shadow-sm"
       />
 
-      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg">
         🔍
       </span>
     </div>
   </div>
+
+  {/* Mobile Dropdown */}
+  {showMobileMenu && (
+    <div className="md:hidden px-3 pb-4 bg-white">
+      <div className="grid grid-cols-2 gap-2 bg-[#F7FFE7] border border-lime-200 rounded-2xl p-3 shadow-xl font-black">
+        <Link
+          to="/"
+          onClick={() => setShowMobileMenu(false)}
+          className="text-center py-3 rounded-xl bg-[#E8FDCB] text-[#0F5132]"
+        >
+          Home
+        </Link>
+
+        <Link
+          to="/products"
+          onClick={() => setShowMobileMenu(false)}
+          className="text-center py-3 rounded-xl bg-white text-[#0F5132]"
+        >
+          Farms
+        </Link>
+
+        <Link
+          to="/my-orders"
+          onClick={() => setShowMobileMenu(false)}
+          className="text-center py-3 rounded-xl bg-white text-[#0F5132]"
+        >
+          My Orders
+        </Link>
+
+        <Link
+          to="/profile"
+          onClick={() => setShowMobileMenu(false)}
+          className="text-center py-3 rounded-xl bg-white text-[#0F5132]"
+        >
+          Profile
+        </Link>
+
+        <a
+          href="#about"
+          onClick={() => setShowMobileMenu(false)}
+          className="col-span-2 text-center py-3 rounded-xl bg-[#0F5132] text-white"
+        >
+          About
+        </a>
+      </div>
+    </div>
+  )}
 </div>
+
+
       {/* Offer Banner */}
-<div className="mt-28 lg:mt-20 w-full bg-[#FACC15] text-black text-center py-2 font-extrabold shadow-md">        <marquee>
+<div className="mt-32 md:mt-20 w-full bg-[#FACC15] text-black text-center py-2 font-extrabold shadow-md overflow-hidden">       <marquee>
           ⚡ 10-Min Fresh Farm Delivery • 🧺 Live Farmer Picking • 🎉 Free Delivery Above ₹500 • 🌿 Organic Quality • ⭐ 4.9 Customer Rating
         </marquee>
       </div>
