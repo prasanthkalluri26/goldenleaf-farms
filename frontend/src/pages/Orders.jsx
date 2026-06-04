@@ -157,7 +157,7 @@ const fetchOrders = async (showLoader = true) => {
 
     setErrorMessage("");
 
-    const response = await axios.get("http://127.0.0.1:8000/api/orders/");
+    const response = await axios.get("https://goldenleaf-backend.onrender.com");
     setOrders(response.data);
     setLastUpdated(new Date().toLocaleTimeString());
   } catch (error) {
@@ -180,7 +180,7 @@ const fetchOrders = async (showLoader = true) => {
   if (!confirmDelete) return;
 
   try {
-    await axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}/`);
+    await axios.delete(`https://goldenleaf-backend.onrender.com${order.id}/`);
     fetchOrders();
     setToastType("delete");
 
@@ -213,7 +213,7 @@ const deleteCancelledOrders = async () => {
 
   try {
     for (const order of cancelledOrders) {
-      await axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}/`);
+      await axios.delete(`https://goldenleaf-backend.onrender.com${order.id}/`);
     }
 
     fetchOrders();
@@ -247,7 +247,7 @@ const deleteDeliveredOrders = async () => {
 
   try {
     for (const order of deliveredOrders) {
-      await axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}/`);
+      await axios.delete(`https://goldenleaf-backend.onrender.com${order.id}/`);
     }
 
     fetchOrders();
@@ -277,7 +277,7 @@ const saveCustomerFeedback = async (orderId) => {
   }
 
   try {
-    await axios.patch(`http://127.0.0.1:8000/api/orders/${orderId}/feedback/`, {
+    await axios.patch(`https://goldenleaf-backend.onrender.com${orderId}/feedback/`, {
       customer_rating: rating,
       customer_feedback: feedback,
     });
@@ -305,7 +305,7 @@ const saveCustomerFeedback = async (orderId) => {
   if (!confirmStatus) return;
 
   try {
-    await axios.patch(`http://127.0.0.1:8000/api/orders/${id}/status/`, {
+    await axios.patch(`https://goldenleaf-backend.onrender.com${id}/status/`, {
       status,
     });
 

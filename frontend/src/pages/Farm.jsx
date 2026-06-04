@@ -600,11 +600,10 @@ const farmerOffsetTop = 40;
     try {
       setPlacingOrder(true);
 
-      const response = await axios.post(
-  "http://127.0.0.1:8000/api/orders/",
+     const response = await axios.post(
+  "https://goldenleaf-backend.onrender.com/api/orders/",
   orderData
 );
-
 setLatestOrder(response.data);
 
       setCart([]);
@@ -624,10 +623,20 @@ setTimeout(() => {
   setShowDeliveryBike(false);
   setDeliveryStatus("");
 }, 5000);
-    } catch (error) {
-      console.log(error);
-      alert("Something went wrong");
-    } finally {
+    } 
+    
+    catch (error) {
+  console.log("ORDER ERROR:", error);
+  console.log("BACKEND ERROR:", error.response?.data);
+
+  alert(
+    error.response?.data
+      ? JSON.stringify(error.response.data)
+      : "Order failed. Check backend/CORS/API URL."
+  );
+}
+    
+    finally {
       setPlacingOrder(false);
     }
   };

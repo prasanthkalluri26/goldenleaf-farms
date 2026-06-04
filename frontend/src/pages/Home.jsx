@@ -71,7 +71,7 @@ const handleNavbarSearch = (e) => {
   useEffect(() => {
     const fetchCustomerReviews = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/orders/");
+        const response = await axios.get("https://goldenleaf-backend.onrender.com");
 
         const reviews = response.data
           .filter(
