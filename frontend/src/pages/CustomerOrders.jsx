@@ -18,7 +18,9 @@ function CustomerOrders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get("https://goldenleaf-backend.onrender.com");
+      const response = await axios.get(
+  "https://goldenleaf-backend.onrender.com/api/orders/"
+);
       setOrders(response.data);
     } catch (error) {
       console.log("Orders fetch failed:", error);
