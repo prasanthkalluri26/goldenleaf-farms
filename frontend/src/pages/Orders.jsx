@@ -4,6 +4,8 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import goldenLeafLogo from "../assets/images/goldenleaf-logo.png";
 
+const API_BASE_URL = "https://goldenleaf-backend.onrender.com/api/orders/";
+
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [adminPassword, setAdminPassword] = useState("");
@@ -157,7 +159,7 @@ const fetchOrders = async (showLoader = true) => {
 
     setErrorMessage("");
 
-    const response = await axios.get("https://goldenleaf-backend.onrender.com");
+    const response = await axios.get(API_BASE_URL);
     setOrders(response.data);
     setLastUpdated(new Date().toLocaleTimeString());
   } catch (error) {
@@ -180,7 +182,7 @@ const fetchOrders = async (showLoader = true) => {
   if (!confirmDelete) return;
 
   try {
-    await axios.delete(`https://goldenleaf-backend.onrender.com${order.id}/`);
+    await axios.delete(`${API_BASE_URL}${order.id}/`);
     fetchOrders();
     setToastType("delete");
 
@@ -213,7 +215,7 @@ const deleteCancelledOrders = async () => {
 
   try {
     for (const order of cancelledOrders) {
-      await axios.delete(`https://goldenleaf-backend.onrender.com${order.id}/`);
+      await axios.delete(`${API_BASE_URL}${order.id}/`);
     }
 
     fetchOrders();
@@ -277,7 +279,7 @@ const saveCustomerFeedback = async (orderId) => {
   }
 
   try {
-    await axios.patch(`https://goldenleaf-backend.onrender.com${orderId}/feedback/`, {
+   await axios.patch(`${API_BASE_URL}${orderId}/feedback/`, {
       customer_rating: rating,
       customer_feedback: feedback,
     });
@@ -305,7 +307,7 @@ const saveCustomerFeedback = async (orderId) => {
   if (!confirmStatus) return;
 
   try {
-    await axios.patch(`https://goldenleaf-backend.onrender.com${id}/status/`, {
+    await axios.patch(`${API_BASE_URL}${id}/status/`, {
       status,
     });
 
