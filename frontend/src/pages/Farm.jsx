@@ -190,7 +190,10 @@ function Farm() {
   const [tipAmount, setTipAmount] = useState(0);
   const [showFarmerAssistant, setShowFarmerAssistant] = useState(true);
 
-  const [farmerPos, setFarmerPos] = useState({ left: 120, top: 350 });
+  const [farmerPos, setFarmerPos] = useState({
+ left: window.innerWidth < 768 ? 70 : 120,
+top: window.innerWidth < 768 ? 455 : 350,
+});
   const [farmerMessage, setFarmerMessage] = useState("Ready to pick 👨‍🌾");
   const [assistantMessage, setAssistantMessage] = useState(
     "Welcome to GoldenLeaf Farms 🌿"
@@ -497,7 +500,10 @@ const farmerOffsetTop = 40;
     }, 2600);
 
     setTimeout(() => {
-    setFarmerPos({ left: 120, top: 380 });
+    setFarmerPos({
+  left: isMobile ? 70 : 120,
+top: isMobile ? 455 : 380,
+});
       setIsPicking(false);
     }, 3400);
   };
@@ -604,6 +610,7 @@ const farmerOffsetTop = 40;
   "https://goldenleaf-backend.onrender.com/api/orders/",
   orderData
 );
+
 setLatestOrder(response.data);
 
       setCart([]);
@@ -641,6 +648,21 @@ setTimeout(() => {
     }
   };
 
+const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+
+  return () => {
+    window.removeEventListener("resize", checkMobile);
+  };
+}, []);
+
   return (
     <div className="min-h-screen bg-[#F7FFE7] overflow-hidden relative">
       {/* Farm Navbar */}
@@ -664,7 +686,7 @@ setTimeout(() => {
             </div>
           </Link>
 
-          <div className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
+          <div className="hidden md:flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
             <Link
               to="/"
               className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
@@ -705,7 +727,7 @@ setTimeout(() => {
     <div className="flex justify-center gap-2 flex-wrap px-4 pointer-events-auto">
       <Link
         to="/farm/Fruits"
-        className={`px-3 py-2 rounded-full text-sm font-black shadow-md transition duration-300 ${
+        className={`px-3 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black shadow-md transition duration-300 ${
           selectedCategory === "Fruits"
             ? "bg-[#FACC15] text-[#0F5132] scale-105"
             : "bg-white/70 backdrop-blur-md text-[#0F5132] hover:bg-white"
@@ -716,7 +738,7 @@ setTimeout(() => {
 
       <Link
         to="/farm/Vegetables"
-        className={`px-3 py-2 rounded-full text-sm font-black shadow-md transition duration-300 ${
+        className={`px-3 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black shadow-md transition duration-300 ${
           selectedCategory === "Vegetables"
             ? "bg-[#FACC15] text-[#0F5132] scale-105"
             : "bg-white/70 backdrop-blur-md text-[#0F5132] hover:bg-white"
@@ -727,7 +749,7 @@ setTimeout(() => {
 
       <Link
         to="/farm/Organic"
-        className={`px-3 py-2 rounded-full text-sm font-black shadow-md transition duration-300 ${
+        className={`px-3 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black shadow-md transition duration-300 ${
           selectedCategory === "Organic"
             ? "bg-[#FACC15] text-[#0F5132] scale-105"
             : "bg-white/70 backdrop-blur-md text-[#0F5132] hover:bg-white"
@@ -751,10 +773,11 @@ setTimeout(() => {
       {/* Farm Stage */}
       <div
         id="shop"
-className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-repeat"        style={{
+          className="relative h-[720px] md:h-[calc(100vh-160px)] md:min-h-[640px] overflow-hidden bg-no-repeat"
+          style={{
           backgroundColor: activeFarm.bgColor,
           backgroundImage: `linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0.05)), url(${currentFarmBg})`,
-          backgroundSize: "contain",
+         backgroundSize: isMobile ? "125% auto" : "contain",
           backgroundPosition: "center bottom",
           backgroundAttachment: "scroll",
         }}
@@ -792,7 +815,7 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
         </div>
 
         {/* Product Area */}
-<div className="absolute left-1/2 top-20 -translate-x-1/2 z-30 scale-90 md:scale-100">
+<div className="absolute left-1/2 top-[210px] md:top-20 -translate-x-1/2 z-30 scale-[0.82] md:scale-100">
           {filteredProducts.map((product) => {
             const remainingStock = getRemainingStock(product);
 
@@ -811,9 +834,17 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
                     : "cursor-pointer hover:scale-125 hover:drop-shadow-[0_0_25px_yellow]"
                 }`}
                 style={{
-                  top: `${product.top}px`,
-                  left: `${product.left}px`,
-                }}
+  top: `${
+    isMobile
+      ? mobileProductPositions[selectedCategory]?.[product.id]?.top ?? product.top
+      : product.top
+  }px`,
+  left: `${
+    isMobile
+      ? mobileProductPositions[selectedCategory]?.[product.id]?.left ?? product.left
+      : product.left
+  }px`,
+}}
               >
                 <div className="relative">
                   {remainingStock > 0 ? (
@@ -823,7 +854,7 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
                       <img
                         src={product.image}
                         alt={product.name}
-                        className={`relative w-16 h-20 object-contain drop-shadow-2xl transition duration-500 ${
+                        className={`relative w-12 h-14 md:w-16 md:h-20 object-contain drop-shadow-2xl transition duration-500 ${
                           highlightProductId === product.id
                             ? "scale-150 animate-bounce ring-4 ring-yellow-400 rounded-full bg-yellow-200/50 p-2"
                             : ""
@@ -836,7 +867,8 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
                     </div>
                   )}
 
-                  <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 bg-white/95 px-2 py-1.5 rounded-lg text-[11px] font-bold shadow-md text-center min-w-[82px] border border-green-300">
+                 <div className="absolute -bottom-14 md:-bottom-16 left-1/2 -translate-x-1/2 bg-white/95 px-2 py-1 md:py-1.5 rounded-lg text-[10px] md:text-[11px] font-bold shadow-md text-center min-w-[72px] md:min-w-[82px] border border-green-300">
+          
   <p className="text-gray-800 leading-tight">
     {product.name}
   </p>
@@ -881,7 +913,7 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
             <img
               src={farmerImg}
               alt="Farmer"
-              className="w-28 md:w-40 animate-bounce drop-shadow-2xl"
+              className="w-24 md:w-40 animate-bounce drop-shadow-2xl"
             />
 
             <div className="w-24 h-5 bg-black/30 blur-md rounded-full mx-auto -mt-4"></div>
@@ -918,7 +950,7 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
         )}
 
         {/* Basket */}
-<div className="absolute bottom-0 right-8 md:right-24 z-40"> 
+<div className="absolute bottom-[-20px] right-[-6px] md:bottom-0 md:right-24 z-40">
 <div className="relative translate-y-10">          <div
               className={`transition duration-500 ${
                 basketAnimate ? "scale-125 rotate-6" : ""
@@ -927,7 +959,7 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
               <img
                 src={basketImg}
                 alt="Basket"
-                className="w-40 md:w-48 drop-shadow-2xl"
+               className="w-28 md:w-48 drop-shadow-2xl" 
               />
 
               <div className="absolute bottom-10 left-8 flex gap-2 flex-wrap w-28">

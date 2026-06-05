@@ -42,6 +42,29 @@ function Products() {
     },
   ];
 
+const mobileProductPositions = {
+  Fruits: {
+    1: { top: 230, left: 95 },   // Apple
+    2: { top: 80, left: -15 },   // Banana
+    3: { top: 145, left: 95 },   // Orange
+    4: { top: 220, left: -115 }, // Mango
+  },
+
+  Vegetables: {
+    5: { top: 170, left: 95 },   // Tomato
+    6: { top: 270, left: -15 },  // Carrot
+    7: { top: 330, left: -115 }, // Potato
+    8: { top: 290, left: 115 },  // Onion
+  },
+
+  Organic: {
+    9: { top: 120, left: -110 }, // Honey
+    10: { top: 260, left: -10 }, // Milk
+    11: { top: 330, left: -120 },// Eggs
+    12: { top: 300, left: 110 }, // Spinach
+  },
+};  
+
   return (
     <div className="min-h-screen bg-[#F7FFE7] text-gray-900">
       {/* Navbar */}
