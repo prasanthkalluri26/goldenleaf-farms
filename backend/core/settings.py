@@ -134,5 +134,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "https://goldenleaf-farms.vercel.app",
 ]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://goldenleaf-farms.vercel.app",
+    "https://goldenleaf-backend.onrender.com",
+]
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
