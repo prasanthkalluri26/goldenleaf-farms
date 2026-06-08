@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order
+from .models import Order, SupportRequest
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -23,3 +23,9 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer_rating",
             "customer_feedback",
         ]
+from .models import SupportRequest
+
+class SupportRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportRequest
+        fields = "__all__"

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import goldenLeafLogo from "../assets/images/goldenleaf-logo.png";
+import axios from "axios";
 
 function CustomerService() {
   const [formData, setFormData] = useState({
@@ -18,13 +19,22 @@ function CustomerService() {
     });
   };
 
-  const submitSupport = (e) => {
-    e.preventDefault();
+  const submitSupport = async (e) => {
+  e.preventDefault();
 
-    if (!formData.name || !formData.phone || !formData.message) {
-      alert("Please fill name, phone number and message");
-      return;
-    }
+  if (!formData.name || !formData.phone || !formData.message) {
+    alert("Please fill name, phone number and message");
+    return;
+  }
+
+  try {
+    await axios.post("https://goldenleaf-backend.onrender.com/api/support/", {
+      name: formData.name,
+      phone: formData.phone,
+      order_id: formData.orderId,
+      issue_type: formData.issueType,
+      message: formData.message,
+    });
 
     alert("Your support request submitted successfully 💚");
 
@@ -35,7 +45,17 @@ function CustomerService() {
       issueType: "Order Issue",
       message: "",
     });
-  };
+  } catch (error) {
+    console.log("SUPPORT ERROR:", error);
+    console.log("BACKEND ERROR:", error.response?.data);
+
+    alert(
+      error.response?.data
+        ? JSON.stringify(error.response.data)
+        : "Support request failed"
+    );
+  }
+};
 
   const whatsappText = `Hi GoldenLeaf Farms Support,
 
