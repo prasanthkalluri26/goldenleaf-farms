@@ -29,6 +29,18 @@ function Orders() {
   const [refreshing, setRefreshing] = useState(false);
   const [showCSVOptions, setShowCSVOptions] = useState(false);
   const csvDropdownRef = useRef(null);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminAccess, setAdminAccess] = useState(false);
+
+  const checkAdminPassword = () => {
+  if (adminPassword === "6202") {
+    setAdminAccess(true);
+    setAdminPassword("");
+  } else {
+    alert("Wrong admin password");
+  }
+};
+
 
   useEffect(() => {
   window.scrollTo(0, 0);
@@ -698,6 +710,8 @@ const exportCustomerCSV = () => {
       (order.email || "").toLowerCase().includes(searchOrder.toLowerCase()) ||
       order.city.toLowerCase().includes(searchOrder.toLowerCase());
 
+
+
     return (
       matchesStatus &&
       matchesDashboard &&
@@ -1161,6 +1175,46 @@ const exportDeliveredOrdersCSV = () => {
     setToastMessage("");
   }, 3000);
 };
+
+
+if (!adminAccess) {
+  return (
+    <div className="min-h-screen bg-[#F7FFE7] flex items-center justify-center px-4">
+      <div className="bg-white rounded-[2rem] shadow-2xl border border-lime-200 p-8 w-full max-w-md text-center">
+        <div className="text-6xl mb-4">🔐</div>
+
+        <h1 className="text-3xl font-black text-[#0F5132]">
+          Admin Access
+        </h1>
+
+        <p className="text-gray-600 font-semibold mt-2">
+          Enter password to open Orders Dashboard.
+        </p>
+
+        <input
+          type="password"
+          value={adminPassword}
+          onChange={(e) => setAdminPassword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              checkAdminPassword();
+            }
+          }}
+          placeholder="Enter admin password"
+          className="w-full mt-6 border-2 border-lime-200 bg-[#F7FFE7] p-4 rounded-2xl font-bold outline-none focus:border-[#0F5132]"
+        />
+
+        <button
+          type="button"
+          onClick={checkAdminPassword}
+          className="w-full mt-4 bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
+        >
+          Open Dashboard
+        </button>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-[#F7FFE7] pt-28 px-4 md:px-8 pb-8">
