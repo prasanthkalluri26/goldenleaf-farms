@@ -8,10 +8,6 @@ const API_BASE_URL = "https://goldenleaf-backend.onrender.com/api/orders/";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
-  const [adminPassword, setAdminPassword] = useState("");
-const [adminAccess, setAdminAccess] = useState(() => {
-  return localStorage.getItem("goldenleaf_admin_access") === "true";
-});
   const [statusFilter, setStatusFilter] = useState("All");
   const [paymentFilter, setPaymentFilter] = useState("All");
   const [dashboardFilter, setDashboardFilter] = useState("All");
@@ -33,15 +29,7 @@ const [adminAccess, setAdminAccess] = useState(() => {
   const [refreshing, setRefreshing] = useState(false);
   const [showCSVOptions, setShowCSVOptions] = useState(false);
   const csvDropdownRef = useRef(null);
- 
-const checkAdminPassword = () => {
-  if (adminPassword === "GoldenL@2026") {
-    localStorage.setItem("goldenleaf_admin_access", "true");
-    setAdminAccess(true);
-  } else {
-    alert("Wrong admin password");
-  }
-};
+
   useEffect(() => {
   window.scrollTo(0, 0);
 }, []);
@@ -51,40 +39,6 @@ const checkAdminPassword = () => {
   const interval = setInterval(() => {
     fetchOrders(false);
   }, 10000);
-
-if (!adminAccess) {
-  return (
-    <div className="min-h-screen bg-[#F7FFE7] flex items-center justify-center px-4">
-      <div className="bg-white rounded-[2rem] shadow-2xl border border-lime-200 p-8 w-full max-w-md text-center">
-        <div className="text-6xl mb-4">🔐</div>
-
-        <h1 className="text-3xl font-black text-[#0F5132]">
-          Admin Access
-        </h1>
-
-        <p className="text-gray-600 font-semibold mt-2">
-          Enter password to open Orders Dashboard.
-        </p>
-
-        <input
-          type="password"
-          value={adminPassword}
-          onChange={(e) => setAdminPassword(e.target.value)}
-          placeholder="Enter admin password"
-          className="w-full mt-6 border-2 border-lime-200 bg-[#F7FFE7] p-4 rounded-2xl font-bold outline-none focus:border-[#0F5132]"
-        />
-
-        <button
-          type="button"
-          onClick={checkAdminPassword}
-          className="w-full mt-4 bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
-        >
-          Open Dashboard
-        </button>
-      </div>
-    </div>
-  );
-}
 
   return () => clearInterval(interval);
 }, []);
@@ -249,7 +203,7 @@ const deleteDeliveredOrders = async () => {
 
   try {
     for (const order of deliveredOrders) {
-      await axios.delete(`https://goldenleaf-backend.onrender.com${order.id}/`);
+      await axios.delete(`${API_BASE_URL}${order.id}/`);
     }
 
     fetchOrders();
@@ -279,7 +233,7 @@ const saveCustomerFeedback = async (orderId) => {
   }
 
   try {
-   await axios.patch(`${API_BASE_URL}${orderId}/feedback/`, {
+    await axios.patch(`${API_BASE_URL}${orderId}/feedback/`, {
       customer_rating: rating,
       customer_feedback: feedback,
     });
@@ -299,7 +253,7 @@ const saveCustomerFeedback = async (orderId) => {
 };
 
 
- const updateStatus = async (id, status) => {
+const updateStatus = async (id, status) => {
   const confirmStatus = window.confirm(
     `Are you sure you want to change order status to "${status}"?`
   );
@@ -308,7 +262,7 @@ const saveCustomerFeedback = async (orderId) => {
 
   try {
     await axios.patch(`${API_BASE_URL}${id}/status/`, {
-      status,
+      status: status,
     });
 
     fetchOrders(false);
@@ -320,8 +274,14 @@ const saveCustomerFeedback = async (orderId) => {
       setToastMessage("");
     }, 3000);
   } catch (error) {
-    console.log(error);
-    alert("Status update failed");
+    console.log("STATUS UPDATE ERROR:", error);
+    console.log("BACKEND ERROR:", error.response?.data);
+
+    alert(
+      error.response?.data
+        ? JSON.stringify(error.response.data)
+        : "Status update failed"
+    );
   }
 };
 
@@ -1202,41 +1162,6 @@ const exportDeliveredOrdersCSV = () => {
   }, 3000);
 };
 
-
-if (!adminAccess) {
-  return (
-    <div className="min-h-screen bg-[#F7FFE7] flex items-center justify-center px-4">
-      <div className="bg-white rounded-[2rem] shadow-2xl border border-lime-200 p-8 w-full max-w-md text-center">
-        <div className="text-6xl mb-4">🔐</div>
-
-        <h1 className="text-3xl font-black text-[#0F5132]">
-          Admin Access
-        </h1>
-
-        <p className="text-gray-600 font-semibold mt-2">
-          Enter password to open Orders Dashboard.
-        </p>
-
-        <input
-          type="password"
-          value={adminPassword}
-          onChange={(e) => setAdminPassword(e.target.value)}
-          placeholder="Enter admin password"
-          className="w-full mt-6 border-2 border-lime-200 bg-[#F7FFE7] p-4 rounded-2xl font-bold outline-none focus:border-[#0F5132]"
-        />
-
-        <button
-          type="button"
-          onClick={checkAdminPassword}
-          className="w-full mt-4 bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
-        >
-          Open Dashboard
-        </button>
-      </div>
-    </div>
-  );
-}
-
   return (
     <div className="min-h-screen bg-[#F7FFE7] pt-28 px-4 md:px-8 pb-8">
      {toastMessage && (
@@ -1298,28 +1223,19 @@ if (!adminAccess) {
       </Link>
 
       <Link
-  to="/admin-orders"
+        to="/admin-orders"
         className="px-4 py-2 rounded-full bg-[#FACC15] text-[#0F5132] shadow-md"
       >
-Admin Orders
+        Orders
       </Link>
-<button
-  type="button"
-  onClick={() => {
-    localStorage.removeItem("goldenleaf_admin_access");
-    setAdminAccess(false);
-    setAdminPassword("");
-  }}
-  className="px-4 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition shadow-md"
->
-  Logout
-</button>
+
       <Link
         to="/profile"
         className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
       >
         Profile
       </Link>
+      
     </div>
   </div>
 </div>

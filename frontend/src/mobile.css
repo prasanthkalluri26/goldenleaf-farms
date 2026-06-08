@@ -1,0 +1,64 @@
+/* =========================
+   GOLDENLEAF MOBILE FIXES
+   Only applies to phone screens
+========================= */
+
+@media (max-width: 767px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Navbar */
+  .mobile-hide {
+    display: none !important;
+  }
+
+  .mobile-logo {
+    width: 58px !important;
+    height: 42px !important;
+  }
+
+  .mobile-brand-title {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .mobile-brand-subtitle {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Farm page */
+  .farm-stage {
+    height: 720px !important;
+    min-height: 720px !important;
+    background-size: 145% auto !important;
+    background-position: center bottom !important;
+  }
+
+  .product-area {
+    top: 165px !important;
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.72) !important;
+    transform-origin: top center !important;
+  }
+
+  .farmer-box {
+    left: 60px !important;
+    top: 445px !important;
+  }
+
+  .farmer-box img {
+    width: 110px !important;
+  }
+
+  .basket-box {
+    right: -8px !important;
+    bottom: -10px !important;
+  }
+
+  .basket-box img {
+    width: 120px !important;
+  }
+}

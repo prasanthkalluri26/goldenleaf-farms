@@ -95,7 +95,7 @@ function Navbar({ subtitle = "Fresh Farm Products • Fast Delivery" }) {
           </Link>
 
           <Link
-            to="/orders"
+            to="/admin-orders"
             className={
               location.pathname === "/orders"
                 ? "px-4 py-2 rounded-full bg-[#FACC15] text-[#0F5132] shadow-md transition duration-300"

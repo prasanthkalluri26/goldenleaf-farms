@@ -10,7 +10,9 @@ function CustomerOrders() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [customerOrders, setCustomerOrders] = useState([]);
   const [searched, setSearched] = useState(false);
-
+  const [reviewRatings, setReviewRatings] = useState({});
+  const [reviewTexts, setReviewTexts] = useState({});
+  const [reviewLoading, setReviewLoading] = useState(false);
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchOrders();
@@ -142,6 +144,53 @@ function CustomerOrders() {
     return "Your order is being packed with love and care 💚";
   };
 
+const submitCustomerReview = async (orderId) => {
+  const rating = reviewRatings[orderId] || 0;
+  const feedback = reviewTexts[orderId] || "";
+
+  if (!rating) {
+    alert("Please select rating");
+    return;
+  }
+
+  if (!feedback.trim()) {
+    alert("Please write your feedback");
+    return;
+  }
+
+  try {
+    setReviewLoading(true);
+
+    await axios.patch(
+      `https://goldenleaf-backend.onrender.com/api/orders/${orderId}/feedback/`,
+      {
+        customer_rating: rating,
+        customer_feedback: feedback,
+      }
+    );
+
+    alert("Thank you for your review 💚");
+
+    setReviewRatings((prev) => ({
+      ...prev,
+      [orderId]: 0,
+    }));
+
+    setReviewTexts((prev) => ({
+      ...prev,
+      [orderId]: "",
+    }));
+
+    fetchOrders();
+  } catch (error) {
+    console.log("REVIEW ERROR:", error);
+    console.log("BACKEND ERROR:", error.response?.data);
+    alert("Review submit failed");
+  } finally {
+    setReviewLoading(false);
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#F7FFE7] text-gray-900">
       {/* Customer Navbar */}
@@ -186,6 +235,12 @@ function CustomerOrders() {
             >
               My Orders
             </Link>
+<Link
+  to="/customer-service"
+  className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+>
+  Support
+</Link>
 
             <Link
               to="/profile"
@@ -344,6 +399,75 @@ function CustomerOrders() {
                         </div>
                       ))}
                     </div>
+
+{order.status === "Delivered" && (
+  <div className="mt-6 bg-green-50 border-2 border-green-200 rounded-3xl p-5 shadow-md">
+    <h3 className="text-2xl font-black text-[#0F5132] mb-2">
+      ⭐ Customer Review
+    </h3>
+
+    {order.customer_rating || order.customer_feedback ? (
+      <div className="bg-white rounded-2xl p-4 border border-lime-200">
+        <p className="font-black text-yellow-600 text-xl">
+          Rating: {"⭐".repeat(Number(order.customer_rating || 0))}
+        </p>
+
+        <p className="text-gray-700 font-bold mt-2">
+          {order.customer_feedback || "No feedback added"}
+        </p>
+      </div>
+    ) : (
+      <>
+        <p className="font-bold text-gray-600 mb-3">
+          Your order was delivered. Please share your experience.
+        </p>
+
+        <div className="flex gap-2 mb-4">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() =>
+                setReviewRatings((prev) => ({
+                  ...prev,
+                  [order.id]: star,
+                }))
+              }
+              className={`text-3xl transition ${
+                (reviewRatings[order.id] || 0) >= star
+                  ? "scale-125"
+                  : "opacity-40"
+              }`}
+            >
+              ⭐
+            </button>
+          ))}
+        </div>
+
+        <textarea
+          value={reviewTexts[order.id] || ""}
+          onChange={(e) =>
+            setReviewTexts((prev) => ({
+              ...prev,
+              [order.id]: e.target.value,
+            }))
+          }
+          placeholder="Write your feedback about freshness, delivery, quality..."
+          className="w-full min-h-[110px] border-2 border-lime-200 bg-white rounded-2xl p-4 font-bold outline-none focus:border-[#0F5132]"
+        />
+
+        <button
+          type="button"
+          onClick={() => submitCustomerReview(order.id)}
+          disabled={reviewLoading}
+          className="mt-4 w-full bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg disabled:bg-gray-400"
+        >
+          {reviewLoading ? "Submitting..." : "Submit Review ✅"}
+        </button>
+      </>
+    )}
+  </div>
+)}
 
                     <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <button

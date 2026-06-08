@@ -5,109 +5,124 @@ import jsPDF from "jspdf";
 
 import goldenLeafLogo from "../assets/images/goldenleaf-logo.png";
 
+const API_BASE_URL = "https://goldenleaf-backend.onrender.com/api/orders/";
+
 function Profile() {
-  const [orders, setOrders] = useState([]);
   const [searchPhone, setSearchPhone] = useState("");
   const [customerOrders, setCustomerOrders] = useState([]);
   const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    fetchOrders();
   }, []);
+
   const parseItems = (itemsData) => {
-  try {
-    return JSON.parse(itemsData);
-  } catch {
-    return [];
-  }
-};
-
-const downloadInvoice = (order) => {
-  const items = parseItems(order.items);
-
-  const productsTotal = items.reduce(
-    (total, item) =>
-      total + Number(item.price || 0) * Number(item.quantity || 0),
-    0
-  );
-
-  const deliveryFee = Number(order.delivery_fee || 0);
-  const tipAmount = Number(order.tip_amount || 0);
-  const finalAmount = Number(order.total_price || 0);
-
-  const doc = new jsPDF();
-
-  doc.setFontSize(22);
-  doc.text("GoldenLeaf Farms Invoice", 20, 20);
-
-  doc.setFontSize(12);
-  doc.text(`Order ID: #${order.id}`, 20, 35);
-  doc.text(`Customer: ${order.customer_name}`, 20, 45);
-  doc.text(`Phone: ${order.phone_number}`, 20, 55);
-  doc.text(`Email: ${order.email || "No email"}`, 20, 65);
-  doc.text(`Address: ${order.address}`, 20, 75);
-  doc.text(`City: ${order.city} - ${order.pincode}`, 20, 85);
-  doc.text(`Payment: ${order.payment_method}`, 20, 95);
-  doc.text(`Status: ${order.status}`, 20, 105);
-
-  doc.setFontSize(14);
-  doc.text("Items:", 20, 122);
-
-  let y = 135;
-
-  items.forEach((item, index) => {
-    const price = Number(item.price || 0);
-    const quantity = Number(item.quantity || 0);
-    const itemTotal = price * quantity;
-
-    doc.setFontSize(11);
-    doc.text(
-      `${index + 1}. ${item.name} - Rs.${price} x ${quantity} = Rs.${itemTotal}`,
-      20,
-      y
-    );
-
-    y += 10;
-  });
-
-  y += 8;
-
-  doc.setFontSize(13);
-  doc.text(`Products Total: Rs.${productsTotal}`, 20, y);
-  doc.text(`Delivery Fee: Rs.${deliveryFee}`, 20, y + 10);
-  doc.text(`Tip: Rs.${tipAmount}`, 20, y + 20);
-
-  doc.setFontSize(16);
-  doc.text(`Final Amount: Rs.${finalAmount}`, 20, y + 35);
-
-  doc.setFontSize(11);
-  doc.text("Thank you for shopping with GoldenLeaf Farms", 20, y + 50);
-
-  doc.save(`goldenleaf_invoice_order_${order.id}.pdf`);
-};
-
-  const fetchOrders = async () => {
     try {
-      const response = await axios.get("https://goldenleaf-backend.onrender.com");
-      setOrders(response.data);
-    } catch (error) {
-      console.log("Profile orders fetch failed:", error);
+      return JSON.parse(itemsData || "[]");
+    } catch {
+      return [];
     }
   };
 
-  const searchCustomerProfile = () => {
-    if (!searchPhone.trim()) {
+  const searchCustomerProfile = async () => {
+    const phone = searchPhone.trim();
+
+    if (!phone) {
       alert("Please enter phone number");
       return;
     }
 
-    const matchedOrders = orders.filter(
-      (order) => order.phone_number === searchPhone.trim()
+    if (phone.length < 10) {
+      alert("Please enter valid 10 digit phone number");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setSearched(false);
+
+      const response = await axios.get(
+        `${API_BASE_URL}?phone_number=${phone}`
+      );
+
+      setCustomerOrders(response.data || []);
+      setSearched(true);
+    } catch (error) {
+      console.log("PROFILE SEARCH ERROR:", error);
+      console.log("BACKEND ERROR:", error.response?.data);
+
+      setCustomerOrders([]);
+      setSearched(true);
+
+      alert("Profile loading failed. Please check backend.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadInvoice = (order) => {
+    const items = parseItems(order.items);
+
+    const productsTotal = items.reduce(
+      (total, item) =>
+        total + Number(item.price || 0) * Number(item.quantity || 0),
+      0
     );
 
-    setCustomerOrders(matchedOrders);
-    setSearched(true);
+    const deliveryFee = Number(order.delivery_fee || 0);
+    const tipAmount = Number(order.tip_amount || 0);
+    const finalAmount = Number(order.total_price || 0);
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(22);
+    doc.text("GoldenLeaf Farms Invoice", 20, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Order ID: #${order.id}`, 20, 35);
+    doc.text(`Customer: ${order.customer_name}`, 20, 45);
+    doc.text(`Phone: ${order.phone_number}`, 20, 55);
+    doc.text(`Email: ${order.email || "No email"}`, 20, 65);
+    doc.text(`Address: ${order.address}`, 20, 75);
+    doc.text(`City: ${order.city} - ${order.pincode}`, 20, 85);
+    doc.text(`Payment: ${order.payment_method}`, 20, 95);
+    doc.text(`Status: ${order.status}`, 20, 105);
+
+    doc.setFontSize(14);
+    doc.text("Items:", 20, 122);
+
+    let y = 135;
+
+    items.forEach((item, index) => {
+      const price = Number(item.price || 0);
+      const quantity = Number(item.quantity || 0);
+      const itemTotal = price * quantity;
+
+      doc.setFontSize(11);
+      doc.text(
+        `${index + 1}. ${item.name} - Rs.${price} x ${quantity} = Rs.${itemTotal}`,
+        20,
+        y
+      );
+
+      y += 10;
+    });
+
+    y += 8;
+
+    doc.setFontSize(13);
+    doc.text(`Products Total: Rs.${productsTotal}`, 20, y);
+    doc.text(`Delivery Fee: Rs.${deliveryFee}`, 20, y + 10);
+    doc.text(`Tip: Rs.${tipAmount}`, 20, y + 20);
+
+    doc.setFontSize(16);
+    doc.text(`Final Amount: Rs.${finalAmount}`, 20, y + 35);
+
+    doc.setFontSize(11);
+    doc.text("Thank you for shopping with GoldenLeaf Farms", 20, y + 50);
+
+    doc.save(`goldenleaf_invoice_order_${order.id}.pdf`);
   };
 
   const totalSpent = customerOrders
@@ -147,7 +162,7 @@ const downloadInvoice = (order) => {
             </div>
           </Link>
 
-          <div className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
+          <div className="hidden md:flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
             <Link
               to="/"
               className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB]"
@@ -162,12 +177,19 @@ const downloadInvoice = (order) => {
               Farms
             </Link>
 
-           <Link
-  to="/my-orders"
+            <Link
+              to="/my-orders"
+              className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+            >
+              My Orders
+            </Link>
+<Link
+  to="/customer-service"
   className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
 >
-  My Orders
+  Support
 </Link>
+
 
             <Link
               to="/profile"
@@ -208,15 +230,25 @@ const downloadInvoice = (order) => {
               type="text"
               value={searchPhone}
               onChange={(e) => setSearchPhone(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  searchCustomerProfile();
+                }
+              }}
               placeholder="Enter 10 digit phone number"
               className="flex-1 border-2 border-lime-200 bg-[#F7FFE7] p-4 rounded-2xl font-bold outline-none focus:border-[#0F5132]"
             />
 
             <button
               onClick={searchCustomerProfile}
-              className="bg-[#0F5132] text-white px-6 py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
+              disabled={loading}
+              className={`px-6 py-4 rounded-2xl font-black shadow-lg ${
+                loading
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-[#0F5132] text-white hover:bg-[#0b3f27]"
+              }`}
             >
-              View Profile
+              {loading ? "Searching..." : "View Profile"}
             </button>
           </div>
         </div>
@@ -224,7 +256,7 @@ const downloadInvoice = (order) => {
 
       {/* Profile Details */}
       <section className="px-4 py-12">
-        {!searched ? (
+        {!searched && !loading ? (
           <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-xl p-10 text-center">
             <div className="text-7xl">👤</div>
             <h2 className="text-3xl font-black text-[#0F5132] mt-4">
@@ -232,6 +264,16 @@ const downloadInvoice = (order) => {
             </h2>
             <p className="text-gray-600 font-semibold mt-2">
               Enter the phone number used while placing orders.
+            </p>
+          </div>
+        ) : loading ? (
+          <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-xl p-10 text-center">
+            <div className="text-7xl animate-bounce">⏳</div>
+            <h2 className="text-3xl font-black text-[#0F5132] mt-4">
+              Loading Profile...
+            </h2>
+            <p className="text-gray-600 font-semibold mt-2">
+              Please wait, fetching your orders.
             </p>
           </div>
         ) : customerOrders.length === 0 ? (
@@ -311,138 +353,145 @@ const downloadInvoice = (order) => {
               </h2>
 
               <div className="space-y-4">
-               {customerOrders.map((order) => {
-  const items = parseItems(order.items);
+                {customerOrders.map((order) => {
+                  const items = parseItems(order.items);
 
-  return (
-    <div
-      key={order.id}
-      className="bg-[#F7FFE7] border border-lime-200 rounded-2xl p-5"
-    >
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <div>
-          <h3 className="text-2xl font-black text-[#0F5132]">
-            Order #{order.id}
-          </h3>
+                  return (
+                    <div
+                      key={order.id}
+                      className="bg-[#F7FFE7] border border-lime-200 rounded-2xl p-5"
+                    >
+                      <div className="flex flex-col md:flex-row justify-between gap-4">
+                        <div>
+                          <h3 className="text-2xl font-black text-[#0F5132]">
+                            Order #{order.id}
+                          </h3>
 
-          <p className="font-bold text-gray-600 mt-1">
-            📅 {new Date(order.created_at).toLocaleString()}
-          </p>
+                          <p className="font-bold text-gray-600 mt-1">
+                            📅 {new Date(order.created_at).toLocaleString()}
+                          </p>
 
-          <p className="font-bold text-gray-600">
-            💳 {order.payment_method}
-          </p>
+                          <p className="font-bold text-gray-600">
+                            💳 {order.payment_method}
+                          </p>
 
-          <p className="font-bold text-gray-600">
-            🧺 {items.length} item types
-          </p>
-        </div>
+                          <p className="font-bold text-gray-600">
+                            🧺 {items.length} item types
+                          </p>
+                        </div>
 
-        <div className="text-left md:text-right">
-          <p className="text-3xl font-black text-[#0F5132]">
-            ₹{order.total_price}
-          </p>
+                        <div className="text-left md:text-right">
+                          <p className="text-3xl font-black text-[#0F5132]">
+                            ₹{order.total_price}
+                          </p>
 
-          <span
-  className={`inline-block mt-2 px-4 py-2 rounded-full font-black shadow-md ${
-    order.status === "Delivered"
-      ? "bg-green-100 text-green-700 border border-green-300"
-      : order.status === "Cancelled"
-      ? "bg-red-100 text-red-700 border border-red-300"
-      : order.status === "Packed"
-      ? "bg-blue-100 text-blue-700 border border-blue-300"
-      : order.status === "Out for Delivery"
-      ? "bg-orange-100 text-orange-700 border border-orange-300"
-      : "bg-[#FACC15] text-[#0F5132] border border-yellow-300"
-  }`}
->
-  {order.status === "Pending" ? "⏳ Pending" : order.status}
-</span>
-          <button
-  type="button"
-  onClick={() => downloadInvoice(order)}
-  className="block mt-3 bg-[#FACC15] text-[#0F5132] px-5 py-3 rounded-2xl font-black hover:bg-yellow-300 shadow-md border border-yellow-300 hover:scale-105 transition duration-300"
->
-  Download Invoice 🧾
-</button>
-        </div>
-      </div>
+                          <span
+                            className={`inline-block mt-2 px-4 py-2 rounded-full font-black shadow-md ${
+                              order.status === "Delivered"
+                                ? "bg-green-100 text-green-700 border border-green-300"
+                                : order.status === "Cancelled"
+                                ? "bg-red-100 text-red-700 border border-red-300"
+                                : order.status === "Packed"
+                                ? "bg-blue-100 text-blue-700 border border-blue-300"
+                                : order.status === "Out for Delivery"
+                                ? "bg-orange-100 text-orange-700 border border-orange-300"
+                                : "bg-[#FACC15] text-[#0F5132] border border-yellow-300"
+                            }`}
+                          >
+                            {order.status === "Pending"
+                              ? "⏳ Pending"
+                              : order.status}
+                          </span>
 
-      {/* Progress Bar */}
-      <div className="mt-5">
-        <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
-          <div
-            className={`h-3 rounded-full transition-all duration-500 ${
-              order.status === "Pending"
-                ? "w-[20%] bg-yellow-500"
-                : order.status === "Packed"
-                ? "w-[45%] bg-blue-500"
-                : order.status === "Out for Delivery"
-                ? "w-[75%] bg-orange-500"
-                : order.status === "Delivered"
-                ? "w-[100%] bg-green-600"
-                : "w-[100%] bg-red-500"
-            }`}
-          ></div>
-        </div>
+                          <button
+                            type="button"
+                            onClick={() => downloadInvoice(order)}
+                            className="block mt-3 bg-[#FACC15] text-[#0F5132] px-5 py-3 rounded-2xl font-black hover:bg-yellow-300 shadow-md border border-yellow-300 hover:scale-105 transition duration-300"
+                          >
+                            Download Invoice 🧾
+                          </button>
+                        </div>
+                      </div>
 
-        <p className="mt-2 text-sm font-bold text-gray-600">
-          {order.status === "Pending"
-            ? "⏳ Order received. Waiting for packing."
-            : order.status === "Packed"
-            ? "📦 Your order is packed."
-            : order.status === "Out for Delivery"
-            ? "🛵 Your order is on the way."
-            : order.status === "Delivered"
-            ? "✅ Delivered successfully."
-            : "❌ Order cancelled."}
-        </p>
-      </div>
+                      {/* Progress Bar */}
+                      <div className="mt-5">
+                        <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                          <div
+                            className={`h-3 rounded-full transition-all duration-500 ${
+                              order.status === "Pending"
+                                ? "w-[20%] bg-yellow-500"
+                                : order.status === "Packed"
+                                ? "w-[45%] bg-blue-500"
+                                : order.status === "Out for Delivery"
+                                ? "w-[75%] bg-orange-500"
+                                : order.status === "Delivered"
+                                ? "w-[100%] bg-green-600"
+                                : "w-[100%] bg-red-500"
+                            }`}
+                          ></div>
+                        </div>
 
-      {/* Items */}
-      <div className="mt-5 bg-white rounded-2xl p-4 border border-lime-100">
-        <h4 className="font-black text-[#0F5132] mb-3">
-          🧺 Ordered Items
-        </h4>
+                        <p className="mt-2 text-sm font-bold text-gray-600">
+                          {order.status === "Pending"
+                            ? "⏳ Order received. Waiting for packing."
+                            : order.status === "Packed"
+                            ? "📦 Your order is packed."
+                            : order.status === "Out for Delivery"
+                            ? "🛵 Your order is on the way."
+                            : order.status === "Delivered"
+                            ? "✅ Delivered successfully."
+                            : "❌ Order cancelled."}
+                        </p>
+                      </div>
 
-        <div className="space-y-3">
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center bg-[#F7FFE7] rounded-xl p-3"
-            >
-              <div className="flex items-center gap-3">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-12 h-12 object-contain"
-                  />
-                ) : (
-                  <span className="text-3xl">{item.emoji}</span>
-                )}
+                      {/* Items */}
+                      <div className="mt-5 bg-white rounded-2xl p-4 border border-lime-100">
+                        <h4 className="font-black text-[#0F5132] mb-3">
+                          🧺 Ordered Items
+                        </h4>
 
-                <div>
-                  <p className="font-black text-gray-800">
-                    {item.emoji} {item.name}
-                  </p>
+                        <div className="space-y-3">
+                          {items.map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex justify-between items-center bg-[#F7FFE7] rounded-xl p-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                {item.image ? (
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-12 h-12 object-contain"
+                                  />
+                                ) : (
+                                  <span className="text-3xl">
+                                    {item.emoji || "🧺"}
+                                  </span>
+                                )}
 
-                  <p className="text-sm text-gray-600 font-bold">
-                    ₹{item.price} × {item.quantity}
-                  </p>
-                </div>
-              </div>
+                                <div>
+                                  <p className="font-black text-gray-800">
+                                    {item.emoji} {item.name}
+                                  </p>
 
-              <p className="font-black text-[#0F5132]">
-                ₹{Number(item.price || 0) * Number(item.quantity || 0)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-})}
+                                  <p className="text-sm text-gray-600 font-bold">
+                                    ₹{item.price} × {item.quantity}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <p className="font-black text-[#0F5132]">
+                                ₹
+                                {Number(item.price || 0) *
+                                  Number(item.quantity || 0)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

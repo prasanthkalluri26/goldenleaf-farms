@@ -190,10 +190,7 @@ function Farm() {
   const [tipAmount, setTipAmount] = useState(0);
   const [showFarmerAssistant, setShowFarmerAssistant] = useState(true);
 
-  const [farmerPos, setFarmerPos] = useState({
- left: window.innerWidth < 768 ? 70 : 120,
-top: window.innerWidth < 768 ? 455 : 350,
-});
+  const [farmerPos, setFarmerPos] = useState({ left: 120, top: 350 });
   const [farmerMessage, setFarmerMessage] = useState("Ready to pick 👨‍🌾");
   const [assistantMessage, setAssistantMessage] = useState(
     "Welcome to GoldenLeaf Farms 🌿"
@@ -289,11 +286,15 @@ useEffect(() => {
       const basketTop = basketSection.getBoundingClientRect().top;
 
       if (basketTop <= 260) {
-        setShowFloatingCart(false);
-        setShowFarmButtons(false);
-      } else {
-        setShowFarmButtons(true);
-      }
+  setShowFloatingCart(false);
+  setShowFarmButtons(false);
+} else {
+  if (cart.length > 0) {
+    setShowFloatingCart(true);
+  }
+
+  setShowFarmButtons(true);
+}
     } else {
       setShowFarmButtons(true);
     }
@@ -500,10 +501,7 @@ const farmerOffsetTop = 40;
     }, 2600);
 
     setTimeout(() => {
-    setFarmerPos({
-  left: isMobile ? 70 : 120,
-top: isMobile ? 455 : 380,
-});
+    setFarmerPos({ left: 120, top: 380 });
       setIsPicking(false);
     }, 3400);
   };
@@ -606,11 +604,10 @@ top: isMobile ? 455 : 380,
     try {
       setPlacingOrder(true);
 
-     const response = await axios.post(
+      const response = await axios.post(
   "https://goldenleaf-backend.onrender.com/api/orders/",
   orderData
 );
-
 setLatestOrder(response.data);
 
       setCart([]);
@@ -630,38 +627,20 @@ setTimeout(() => {
   setShowDeliveryBike(false);
   setDeliveryStatus("");
 }, 5000);
-    } 
-    
-    catch (error) {
+    }
+     catch (error) {
   console.log("ORDER ERROR:", error);
   console.log("BACKEND ERROR:", error.response?.data);
 
   alert(
     error.response?.data
       ? JSON.stringify(error.response.data)
-      : "Order failed. Check backend/CORS/API URL."
+      : error.message
   );
+} finally {
+  setPlacingOrder(false);
 }
-    
-    finally {
-      setPlacingOrder(false);
-    }
   };
-
-const [isMobile, setIsMobile] = useState(false);
-
-useEffect(() => {
-  const checkMobile = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
-
-  checkMobile();
-  window.addEventListener("resize", checkMobile);
-
-  return () => {
-    window.removeEventListener("resize", checkMobile);
-  };
-}, []);
 
   return (
     <div className="min-h-screen bg-[#F7FFE7] overflow-hidden relative">
@@ -686,7 +665,7 @@ useEffect(() => {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
+          <div className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-bold">
             <Link
               to="/"
               className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
@@ -701,18 +680,29 @@ useEffect(() => {
               Farms
             </Link>
 
-          <Link
-  to="/my-orders"
+            <Link
+              to="/admin-orders"
+              className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+            >
+              Orders
+            </Link>
+
+            <Link
+  to="/customer-service"
   className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
 >
-  My Orders
+  Support
 </Link>
+
+
             <Link
   to="/profile"
   className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
 >
   Profile
 </Link>
+
+
           </div>
         </div>
       </div>
@@ -727,7 +717,7 @@ useEffect(() => {
     <div className="flex justify-center gap-2 flex-wrap px-4 pointer-events-auto">
       <Link
         to="/farm/Fruits"
-        className={`px-3 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black shadow-md transition duration-300 ${
+        className={`px-3 py-2 rounded-full text-sm font-black shadow-md transition duration-300 ${
           selectedCategory === "Fruits"
             ? "bg-[#FACC15] text-[#0F5132] scale-105"
             : "bg-white/70 backdrop-blur-md text-[#0F5132] hover:bg-white"
@@ -738,7 +728,7 @@ useEffect(() => {
 
       <Link
         to="/farm/Vegetables"
-        className={`px-3 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black shadow-md transition duration-300 ${
+        className={`px-3 py-2 rounded-full text-sm font-black shadow-md transition duration-300 ${
           selectedCategory === "Vegetables"
             ? "bg-[#FACC15] text-[#0F5132] scale-105"
             : "bg-white/70 backdrop-blur-md text-[#0F5132] hover:bg-white"
@@ -749,7 +739,7 @@ useEffect(() => {
 
       <Link
         to="/farm/Organic"
-        className={`px-3 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-black shadow-md transition duration-300 ${
+        className={`px-3 py-2 rounded-full text-sm font-black shadow-md transition duration-300 ${
           selectedCategory === "Organic"
             ? "bg-[#FACC15] text-[#0F5132] scale-105"
             : "bg-white/70 backdrop-blur-md text-[#0F5132] hover:bg-white"
@@ -773,11 +763,10 @@ useEffect(() => {
       {/* Farm Stage */}
       <div
         id="shop"
-          className="relative h-[720px] md:h-[calc(100vh-160px)] md:min-h-[640px] overflow-hidden bg-no-repeat"
-          style={{
+className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-repeat"        style={{
           backgroundColor: activeFarm.bgColor,
           backgroundImage: `linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0.05)), url(${currentFarmBg})`,
-         backgroundSize: isMobile ? "125% auto" : "contain",
+          backgroundSize: "contain",
           backgroundPosition: "center bottom",
           backgroundAttachment: "scroll",
         }}
@@ -815,7 +804,7 @@ useEffect(() => {
         </div>
 
         {/* Product Area */}
-<div className="absolute left-1/2 top-[210px] md:top-20 -translate-x-1/2 z-30 scale-[0.82] md:scale-100">
+<div className="absolute left-1/2 top-20 -translate-x-1/2 z-30 scale-90 md:scale-100">
           {filteredProducts.map((product) => {
             const remainingStock = getRemainingStock(product);
 
@@ -834,17 +823,9 @@ useEffect(() => {
                     : "cursor-pointer hover:scale-125 hover:drop-shadow-[0_0_25px_yellow]"
                 }`}
                 style={{
-  top: `${
-    isMobile
-      ? mobileProductPositions[selectedCategory]?.[product.id]?.top ?? product.top
-      : product.top
-  }px`,
-  left: `${
-    isMobile
-      ? mobileProductPositions[selectedCategory]?.[product.id]?.left ?? product.left
-      : product.left
-  }px`,
-}}
+                  top: `${product.top}px`,
+                  left: `${product.left}px`,
+                }}
               >
                 <div className="relative">
                   {remainingStock > 0 ? (
@@ -854,7 +835,7 @@ useEffect(() => {
                       <img
                         src={product.image}
                         alt={product.name}
-                        className={`relative w-12 h-14 md:w-16 md:h-20 object-contain drop-shadow-2xl transition duration-500 ${
+                        className={`relative w-16 h-20 object-contain drop-shadow-2xl transition duration-500 ${
                           highlightProductId === product.id
                             ? "scale-150 animate-bounce ring-4 ring-yellow-400 rounded-full bg-yellow-200/50 p-2"
                             : ""
@@ -867,8 +848,7 @@ useEffect(() => {
                     </div>
                   )}
 
-                 <div className="absolute -bottom-14 md:-bottom-16 left-1/2 -translate-x-1/2 bg-white/95 px-2 py-1 md:py-1.5 rounded-lg text-[10px] md:text-[11px] font-bold shadow-md text-center min-w-[72px] md:min-w-[82px] border border-green-300">
-          
+                  <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 bg-white/95 px-2 py-1.5 rounded-lg text-[11px] font-bold shadow-md text-center min-w-[82px] border border-green-300">
   <p className="text-gray-800 leading-tight">
     {product.name}
   </p>
@@ -913,7 +893,7 @@ useEffect(() => {
             <img
               src={farmerImg}
               alt="Farmer"
-              className="w-24 md:w-40 animate-bounce drop-shadow-2xl"
+              className="w-28 md:w-40 animate-bounce drop-shadow-2xl"
             />
 
             <div className="w-24 h-5 bg-black/30 blur-md rounded-full mx-auto -mt-4"></div>
@@ -950,7 +930,7 @@ useEffect(() => {
         )}
 
         {/* Basket */}
-<div className="absolute bottom-[-20px] right-[-6px] md:bottom-0 md:right-24 z-40">
+<div className="absolute bottom-0 right-8 md:right-24 z-40"> 
 <div className="relative translate-y-10">          <div
               className={`transition duration-500 ${
                 basketAnimate ? "scale-125 rotate-6" : ""
@@ -959,7 +939,7 @@ useEffect(() => {
               <img
                 src={basketImg}
                 alt="Basket"
-               className="w-28 md:w-48 drop-shadow-2xl" 
+                className="w-40 md:w-48 drop-shadow-2xl"
               />
 
               <div className="absolute bottom-10 left-8 flex gap-2 flex-wrap w-28">
@@ -1077,7 +1057,7 @@ useEffect(() => {
                         : "bg-green-600 hover:bg-green-700"
                     }`}
                   >
-                    +
+                    
                   </button>
                 </div>
 
@@ -1091,50 +1071,50 @@ useEffect(() => {
       </div>
 {/* Small Floating Cart Bar */}
 {cart.length > 0 && showFloatingCart && (
-  <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[250] w-[90%] max-w-sm">
+  <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[250] w-[190px]">
     <button
       type="button"
-onClick={() => {
-  const basketSection = document.getElementById("basket-section");
+      onClick={() => {
+        const basketSection = document.getElementById("basket-section");
 
-  if (basketSection) {
-    setShowFarmButtons(false);
+        if (basketSection) {
+          setShowFarmButtons(false);
 
-    basketSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+          basketSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
 
-    setTimeout(() => {
-      setShowFloatingCart(false);
-    }, 600);
-  }
-}}
-      className="w-full bg-[#0F5132] text-white rounded-2xl shadow-2xl px-4 py-3 hover:bg-[#0b3f27] hover:scale-[1.02] transition duration-300 border-2 border-white"
+          setTimeout(() => {
+            setShowFloatingCart(false);
+          }, 600);
+        }
+      }}
+      className="w-full bg-[#0F5132] text-white rounded-xl shadow-xl px-3 py-2 hover:bg-[#0b3f27] hover:scale-[1.02] transition duration-300 border-2 border-white"
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[#FACC15] text-[#0F5132] flex items-center justify-center text-2xl shadow-md">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[#FACC15] text-[#0F5132] flex items-center justify-center text-lg shadow-md">
             🧺
           </div>
 
           <div className="text-left">
-            <p className="font-black text-sm">
+            <p className="font-black text-xs leading-tight">
               {cart.reduce((total, item) => total + item.quantity, 0)} items
             </p>
 
-            <p className="text-[11px] font-bold text-green-100">
+            <p className="text-[9px] font-bold text-green-100 leading-tight">
               View Basket
             </p>
           </div>
         </div>
 
         <div className="text-right">
-          <p className="font-black text-lg">
+          <p className="font-black text-sm leading-tight">
             ₹{finalTotal}
           </p>
 
-          <p className="text-[11px] font-bold text-green-100">
+          <p className="text-[9px] font-bold text-green-100 leading-tight">
             Open →
           </p>
         </div>
@@ -1624,69 +1604,57 @@ onClick={() => {
         </div>
       )}
 
-     {orderSuccess && (
-  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4">
-    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[460px] overflow-hidden border border-lime-200">
-      <div className="bg-gradient-to-r from-[#0F5132] to-[#65A30D] text-white p-7 text-center">
-        <div className="w-20 h-20 mx-auto bg-white text-green-600 rounded-full flex items-center justify-center text-5xl shadow-2xl">
-          ✅
+      {orderSuccess && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[520px] overflow-hidden border border-lime-200">
+            <div className="bg-gradient-to-r from-[#0F5132] to-[#65A30D] text-white p-7 text-center">
+              <div className="w-20 h-20 mx-auto bg-white text-green-600 rounded-full flex items-center justify-center text-5xl shadow-2xl">
+                ✅
+              </div>
+
+              <h2 className="text-3xl font-black mt-5">Order Confirmed!</h2>
+            </div>
+
+            <div className="p-6 text-center">
+              <h3 className="text-xl md:text-2xl font-black text-[#0F5132]">
+                Your order is being packed with love and care 💚
+              </h3>
+
+              <p className="mt-4 text-gray-600 font-bold">
+                Order ID: #{latestOrder?.id || "Placed"}
+              </p>
+
+              <div className="mt-5 bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                <p className="font-black text-blue-700">
+                  🚚 Estimated delivery: 30 - 45 minutes
+                </p>
+
+                <p className="text-sm font-semibold text-blue-600 mt-1">
+                  Farmer is picking and packing your fresh products.
+                </p>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOrderSuccess(false)}
+                  className="bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
+                >
+                  Continue Shopping 🧺
+                </button>
+
+                <Link
+                  to="/profile"
+                  onClick={() => setOrderSuccess(false)}
+                  className="text-center bg-[#FACC15] text-[#0F5132] py-4 rounded-2xl font-black hover:bg-yellow-300 shadow-lg"
+                >
+                  View Profile 👤
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <h2 className="text-3xl font-black mt-5">
-          Order Confirmed!
-        </h2>
-      </div>
-
-      <div className="p-6 text-center">
-        <h3 className="text-xl md:text-2xl font-black text-[#0F5132]">
-          Your order is being packed with love and care 💚
-        </h3>
-
-        <p className="mt-4 text-gray-600 font-bold">
-          Order ID: #{latestOrder?.id || "Placed"}
-        </p>
-
-        <button
-          type="button"
-          onClick={() => setOrderSuccess(false)}
-          className="mt-6 w-full bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
-        >
-          Continue Shopping 🧺
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-        <div className="mt-5 bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <p className="font-black text-blue-700">
-            🚚 Estimated delivery: 30 - 45 minutes
-          </p>
-
-          <p className="text-sm font-semibold text-blue-600 mt-1">
-            Farmer is picking and packing your fresh products.
-          </p>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setOrderSuccess(false)}
-            className="bg-[#0F5132] text-white py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg"
-          >
-            Continue Shopping 🧺
-          </button>
-
-          <a
-            href="/profile"
-            className="text-center bg-[#FACC15] text-[#0F5132] py-4 rounded-2xl font-black hover:bg-yellow-300 shadow-lg"
-          >
-            View Profile 👤
-          </a>
-        </div>
-      </div>
-  
-)}
+      )}
 
       {/* Page Up / Down */}
       <div className="fixed bottom-2 right-2 z-[120] flex flex-col gap-2">
@@ -1711,7 +1679,8 @@ onClick={() => {
           ↓
         </button>
       </div>
-  
-  
+    </div>
+  );
+}
 
 export default Farm;

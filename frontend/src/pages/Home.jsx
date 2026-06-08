@@ -163,6 +163,7 @@ const handleNavbarSearch = (e) => {
         Profile
       </Link>
 
+
       <a
         href="#about"
         className="px-4 py-2 rounded-full bg-[#0F5132] text-white hover:bg-[#FACC15] hover:text-[#0F5132] transition shadow-md"
@@ -224,6 +225,13 @@ const handleNavbarSearch = (e) => {
         >
           My Orders
         </Link>
+<Link
+  to="/customer-service"
+  className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+>
+  Support
+</Link>
+
 
         <Link
           to="/profile"
@@ -295,7 +303,7 @@ const handleNavbarSearch = (e) => {
               </Link>
 
               <Link
-                to="/orders"
+                to="/admin-orders"
                 className="bg-white text-[#0F5132] px-9 py-4 rounded-2xl text-xl font-black hover:bg-[#FACC15] shadow-2xl hover:scale-105 transition border border-lime-200"
               >
                 Track Orders 📦
@@ -638,7 +646,7 @@ const handleNavbarSearch = (e) => {
             Farms
           </Link>
 
-          <Link to="/orders" className="hover:text-yellow-300">
+          <Link to="/admin-orders" className="hover:text-yellow-300">
             Orders
           </Link>
 

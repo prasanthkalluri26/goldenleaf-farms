@@ -165,6 +165,14 @@ function TrackOrder() {
             <Link to="/products" className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB]">
               Farms
             </Link>
+            <Link
+  to="/customer-service"
+  className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+>
+  Support
+</Link>
+
+
 
             <Link to="/profile" className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB]">
               Profile
