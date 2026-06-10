@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import goldenLeafLogo from "../assets/images/goldenleaf-logo.png";
 import axios from "axios";
 
+
 function CustomerService() {
   const [formData, setFormData] = useState({
     name: "",
@@ -11,6 +12,10 @@ function CustomerService() {
     issueType: "Order Issue",
     message: "",
   });
+const [trackPhone, setTrackPhone] = useState("");
+const [myRequests, setMyRequests] = useState([]);
+const [searchedRequests, setSearchedRequests] = useState(false);
+const [loadingRequests, setLoadingRequests] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,13 +33,13 @@ function CustomerService() {
   }
 
   try {
-    await axios.post("https://goldenleaf-backend.onrender.com/api/support/", {
-      name: formData.name,
-      phone: formData.phone,
-      order_id: formData.orderId,
-      issue_type: formData.issueType,
-      message: formData.message,
-    });
+   await axios.post("http://127.0.0.1:8000/api/support/", {
+  name: formData.name,
+  phone: formData.phone,
+  order_id: formData.orderId,
+  issue_type: formData.issueType,
+  message: formData.message,
+});
 
     alert("Your support request submitted successfully 💚");
 
@@ -66,6 +71,31 @@ Phone: ${formData.phone}
 Order ID: ${formData.orderId || "Not added"}
 Issue: ${formData.issueType}
 Message: ${formData.message}`;
+
+const checkMySupportRequests = async () => {
+  const phone = trackPhone.trim();
+
+  if (!phone) {
+    alert("Please enter phone number");
+    return;
+  }
+
+  try {
+    setLoadingRequests(true);
+
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/support/?phone=${phone}`
+    );
+
+    setMyRequests(response.data || []);
+    setSearchedRequests(true);
+  } catch (error) {
+    console.log("CHECK SUPPORT ERROR:", error);
+    alert("Failed to load your support requests");
+  } finally {
+    setLoadingRequests(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F7FFE7] text-gray-900">
@@ -125,6 +155,108 @@ Message: ${formData.message}`;
           </p>
         </div>
       </section>
+
+{/* Check Support Request Status */}
+<section className="px-4 py-8 bg-[#F7FFE7]">
+  <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-2xl border border-lime-200 p-6">
+    <h2 className="text-2xl md:text-3xl font-black text-[#0F5132]">
+      🔍 Check My Complaint Status
+    </h2>
+
+    <p className="text-gray-600 font-semibold mt-2">
+      Enter your phone number to view your complaint status.
+    </p>
+
+    <div className="flex flex-col md:flex-row gap-3 mt-5">
+      <input
+        type="text"
+        value={trackPhone}
+        onChange={(e) => setTrackPhone(e.target.value)}
+        placeholder="Enter your phone number"
+        className="flex-1 border-2 border-lime-200 bg-[#F7FFE7] p-4 rounded-2xl font-bold outline-none focus:border-[#0F5132]"
+      />
+
+      <button
+        type="button"
+        onClick={checkMySupportRequests}
+        disabled={loadingRequests}
+        className="bg-[#0F5132] text-white px-6 py-4 rounded-2xl font-black hover:bg-[#0b3f27] shadow-lg disabled:bg-gray-400"
+      >
+        {loadingRequests ? "Checking..." : "Check Status"}
+      </button>
+    </div>
+
+    {searchedRequests && (
+      <div className="mt-6">
+        {myRequests.length === 0 ? (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
+            <p className="text-red-600 font-black">
+              No complaint found for this phone number.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {myRequests.map((request) => (
+              <div
+                key={request.id}
+                className="bg-[#F7FFE7] border border-lime-200 rounded-2xl p-5 shadow-md"
+              >
+                <div className="flex flex-col md:flex-row justify-between gap-4">
+                  <div>
+                    <p className="font-black text-[#0F5132] text-xl">
+                      Complaint #{request.id}
+                    </p>
+
+                    <p className="font-bold text-gray-700 mt-1">
+                      🧾 Order ID: {request.order_id || "Not added"}
+                    </p>
+
+                    <p className="font-bold text-gray-700">
+                      📌 Issue: {request.issue_type}
+                    </p>
+
+                    <p className="font-bold text-gray-500">
+                      📅 {new Date(request.created_at).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span
+                      className={`inline-block px-5 py-2 rounded-full font-black shadow-md ${
+                        request.status === "Resolved"
+                          ? "bg-green-100 text-green-700 border border-green-300"
+                          : request.status === "In Progress"
+                          ? "bg-blue-100 text-blue-700 border border-blue-300"
+                          : "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                      }`}
+                    >
+                      {request.status === "Resolved"
+                        ? "✅ Resolved"
+                        : request.status === "In Progress"
+                        ? "🔧 In Progress"
+                        : "🆕 New"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4 bg-white rounded-2xl p-4 border border-lime-100">
+                  <p className="font-black text-[#0F5132] mb-1">
+                    Your Message:
+                  </p>
+
+                  <p className="font-bold text-gray-700">
+                    {request.message}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</section>
+
 
       {/* Content */}
       <section className="px-4 py-12">

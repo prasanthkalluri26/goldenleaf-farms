@@ -7,6 +7,7 @@ import Farm from "./pages/Farm";
 import TrackOrder from "./pages/TrackOrder";
 import CustomerOrders from "./pages/CustomerOrders";
 import CustomerService from "./pages/CustomerService";
+import SupportAdmin from "./pages/SupportAdmin";
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +21,7 @@ function App() {
         <Route path="/track-order" element={<TrackOrder />} />
         <Route path="/my-orders" element={<CustomerOrders />} />
         <Route path="/customer-service" element={<CustomerService />} />
+        <Route path="/customer-support-admin" element={<SupportAdmin />} />
       </Routes>
 
     </BrowserRouter>

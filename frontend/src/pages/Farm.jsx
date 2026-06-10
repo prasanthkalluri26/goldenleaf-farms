@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
-
 import goldenLeafLogo from "../assets/images/goldenleaf-logo.png";
 
 import pickSound from "../assets/sounds/pick.mp3";
@@ -470,7 +469,7 @@ const farmerOffsetTop = 40;
       setCarryingProduct(product.image);
       setFloatingFruit(product.emoji);
       playSound(pickSound);
-    }, 800);
+    }, 500);
 
     setTimeout(() => {
       setFarmerMessage(`Farmer is carrying ${product.name} to basket 🧺`);
@@ -478,7 +477,7 @@ const farmerOffsetTop = 40;
   left: Math.min(window.innerWidth - 260, 1000),
   top: 380,
 });
-    }, 1500);
+    }, 1000);
 
     setTimeout(() => {
       addToBasket(product);
@@ -487,23 +486,23 @@ const farmerOffsetTop = 40;
 
       setTimeout(() => {
         setBasketSplash("");
-      }, 1200);
+      }, 800);
 
       setTimeout(() => {
         setBasketAnimate(false);
-      }, 800);
+      }, 500);
 
       playSound(dropSound);
       setFarmerMessage(`${product.name} added to basket successfully ✅`);
       setAssistantMessage(`${product.name} added successfully 🎉`);
       setCarryingProduct("");
       setFloatingFruit("");
-    }, 2600);
+    }, 1700);
 
     setTimeout(() => {
     setFarmerPos({ left: 120, top: 380 });
       setIsPicking(false);
-    }, 3400);
+    }, 2200);
   };
 
   const increaseQuantity = (id) => {
@@ -879,7 +878,7 @@ className="relative h-[calc(100vh-160px)] min-h-[640px] overflow-hidden bg-no-re
 
         {/* Farmer */}
         <div
-          className="absolute transition-all duration-[900ms] ease-in-out z-40"
+          className="absolute transition-all duration-[600ms] ease-in-out z-40"
           style={{
             left: `${farmerPos.left}px`,
             top: `${farmerPos.top}px`,

@@ -118,6 +118,35 @@ def support_request_list(request):
 
         return Response(serializer.errors, status=drf_status.HTTP_400_BAD_REQUEST)
 
-    support_requests = SupportRequest.objects.all().order_by("-id")
+    phone = request.GET.get("phone")
+
+    if phone:
+        support_requests = SupportRequest.objects.filter(phone=phone).order_by("-id")
+    else:
+        support_requests = SupportRequest.objects.all().order_by("-id")
+
     serializer = SupportRequestSerializer(support_requests, many=True)
+    return Response(serializer.data, status=drf_status.HTTP_200_OK)
+@api_view(["PATCH", "PUT"])
+def update_support_status(request, support_id):
+    try:
+        support_request = SupportRequest.objects.get(id=support_id)
+    except SupportRequest.DoesNotExist:
+        return Response(
+            {"error": "Support request not found"},
+            status=drf_status.HTTP_404_NOT_FOUND,
+        )
+
+    new_status = request.data.get("status")
+
+    if not new_status:
+        return Response(
+            {"error": "Status is required"},
+            status=drf_status.HTTP_400_BAD_REQUEST,
+        )
+
+    support_request.status = new_status
+    support_request.save()
+
+    serializer = SupportRequestSerializer(support_request)
     return Response(serializer.data, status=drf_status.HTTP_200_OK)

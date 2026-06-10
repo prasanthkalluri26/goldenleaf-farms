@@ -5,6 +5,7 @@ from .views import (
     update_order_status,
     update_feedback,
     support_request_list,
+    update_support_status,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("orders/<int:order_id>/status/", update_order_status, name="update-order-status"),
     path("orders/<int:order_id>/feedback/", update_feedback, name="update-feedback"),
     path("support/", support_request_list, name="support-request-list"),
+    path("support/<int:support_id>/status/", update_support_status, name="update-support-status"),
 ]

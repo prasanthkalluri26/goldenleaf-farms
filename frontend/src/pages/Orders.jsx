@@ -1282,6 +1282,12 @@ if (!adminAccess) {
       >
         Orders
       </Link>
+      <Link
+  to="/customer-support-admin"
+  className="px-4 py-2 rounded-full text-[#0F5132] hover:bg-[#E8FDCB] transition"
+>
+  Support Requests
+</Link>
 
       <Link
         to="/profile"
