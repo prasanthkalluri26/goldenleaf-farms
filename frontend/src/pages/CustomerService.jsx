@@ -33,7 +33,7 @@ const [loadingRequests, setLoadingRequests] = useState(false);
   }
 
   try {
-   await axios.post("http://127.0.0.1:8000/api/support/", {
+   await axios.post("https://goldenleaf-backend.onrender.com/api/support/", {
   name: formData.name,
   phone: formData.phone,
   order_id: formData.orderId,
@@ -84,7 +84,7 @@ const checkMySupportRequests = async () => {
     setLoadingRequests(true);
 
     const response = await axios.get(
-      `http://127.0.0.1:8000/api/support/?phone=${phone}`
+      `https://goldenleaf-backend.onrender.com/api/support/?phone=${phone}`
     );
 
     setMyRequests(response.data || []);

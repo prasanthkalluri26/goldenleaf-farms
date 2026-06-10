@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import goldenLeafLogo from "../assets/images/goldenleaf-logo.png";
 
-const SUPPORT_API_URL = "http://127.0.0.1:8000/api/support/";
+const SUPPORT_API_URL = "https://goldenleaf-backend.onrender.com/api/support/";
 
 function SupportAdmin() {
   const [supportRequests, setSupportRequests] = useState([]);
